@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fix Product Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .image-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            width: 200px;
+            height: 200px;
+            border: 1px solid #ddd;
+        }
+
+        .download-btn {
+            background: #007cba;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>ElectroMart - Fix Product Images</h1>
+    <p>Click the buttons below to download proper image files for your products:</p>
+
+    <div id="images-container"></div>
+
+    <script>
+        const products = [
+            { name: 'iPhone 15 Pro', filename: 'iphone15pro.jpg', color: '#007AFF' },
+            { name: 'iPhone 14', filename: 'iphone14.jpg', color: '#007AFF' },
+            { name: 'Galaxy S24', filename: 'galaxys24.jpg', color: '#1428A0' },
+            { name: 'Pixel 8', filename: 'pixel8.png', color: '#4285F4' },
+            { name: 'MacBook Pro 14', filename: 'macbookpro14.jpg', color: '#000000' },
+            { name: 'Dell XPS 13', filename: 'dellxps13.jpg', color: '#0073CE' },
+            { name: 'iPad Air', filename: 'ipadair.jpg', color: '#007AFF' },
+            { name: 'Sony WH-1000XM5', filename: 'sonywh1000xm5.jpg', color: '#000000' },
+            { name: 'AirPods Pro', filename: 'airpodspro.jpg', color: '#007AFF' },
+            { name: 'PlayStation 5', filename: 'ps5.jpg', color: '#003791' },
+            { name: 'Xbox Series X', filename: 'xboxseriesx.jpg', color: '#107C10' },
+            { name: 'Nintendo Switch', filename: 'switch.jpg', color: '#E60012' },
+            { name: 'MagSafe Charger', filename: 'magsafe.jpg', color: '#007AFF' }
+        ];
+
+        function createProductImage(product) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 400, 400);
+            gradient.addColorStop(0, '#f8f9fa');
+            gradient.addColorStop(1, '#e9ecef');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 400, 400);
+
+            // Border
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, 380, 380);
+
+            // Product area
+            ctx.fillStyle = product.color + '20';
+            ctx.fillRect(50, 100, 300, 200);
+            ctx.strokeStyle = product.color;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(50, 100, 300, 200);
+
+            // Product name
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+
+            const words = product.name.split(' ');
+            let y = 180;
+            words.forEach((word, index) => {
+                ctx.fillText(word, 200, y + (index * 30));
+            });
+
+            // Brand/type indicator
+            ctx.fillStyle = product.color;
+            ctx.font = '16px Arial';
+            ctx.fillText('PRODUCT IMAGE', 200, 350);
+
+            return canvas;
+        }
+
+        function downloadImage(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/jpeg', 0.8);
+            link.click();
+        }
+
+        // Create placeholder image
+        function createPlaceholder() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, 400, 400);
+
+            // Border
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(5, 5, 390, 390);
+
+            // Icon area
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(100, 100, 200, 200);
+
+            // Text
+            ctx.fillStyle = '#999';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('NO IMAGE', 200, 210);
+
+            ctx.font = '18px Arial';
+            ctx.fillText('AVAILABLE', 200, 240);
+
+            return canvas;
+        }
+
+        // Generate all images
+        const container = document.getElementById('images-container');
+
+        // Add placeholder
+        const placeholderDiv = document.createElement('div');
+        placeholderDiv.className = 'image-preview';
+        const placeholderCanvas = createPlaceholder();
+        placeholderDiv.innerHTML = `
+            <h3>Placeholder Image</h3>
+            ${placeholderCanvas.outerHTML}
+            <br>
+            <button onclick="downloadImage(this.previousElementSibling.previousElementSibling, 'placeholder.jpg')" class="download-btn">
+                Download placeholder.jpg
+            </button>
+        `;
+        container.appendChild(placeholderDiv);
+
+        // Add product images
+        products.forEach(product => {
+            const div = document.createElement('div');
+            div.className = 'image-preview';
+            const canvas = createProductImage(product);
+            div.innerHTML = `
+                <h3>${product.name}</h3>
+                ${canvas.outerHTML}
+                <br>
+                <button onclick="downloadImage(this.previousElementSibling.previousElementSibling, '${product.filename}')" class="download-btn">
+                    Download ${product.filename}
+                </button>
+            `;
+            container.appendChild(div);
+        });
+
+        // Add download all button
+        const downloadAllDiv = document.createElement('div');
+        downloadAllDiv.innerHTML = `
+            <h2>Download All Images</h2>
+            <button onclick="downloadAll()" class="download-btn" style="font-size: 18px; padding: 10px 20px;">
+                Download All Product Images
+            </button>
+            <p><em>Click this button to download all images at once. You'll need to save each file to the correct location in your images/products/ folder.</em></p>
+        `;
+        container.appendChild(downloadAllDiv);
+
+        function downloadAll() {
+            // Download placeholder
+            setTimeout(() => downloadImage(createPlaceholder(), 'placeholder.jpg'), 100);
+
+            // Download all products
+            products.forEach((product, index) => {
+                setTimeout(() => {
+                    const canvas = createProductImage(product);
+                    downloadImage(canvas, product.filename);
+                }, (index + 1) * 200);
+            });
+        }
+    </script>
+</body>
+
+</html>
